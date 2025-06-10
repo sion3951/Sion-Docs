@@ -1,0 +1,33 @@
+#Optional See Nvidia GPU if you want GPU support
+
+#Important
+In proxmox webui you must go to "options" then "features" and enable "nesting" and "fuse" (fuse for appimage support)
+
+#Setup Prerequisites
+grep "^deb " /etc/apt/sources.list | sed s/deb/deb-src/ >> /etc/apt/sources.list
+sudo apt install kde-plasma-desktop xorg dbus-x11 x11-xserver-utils lsb-release -y
+#Add user called setup
+sudo adduser setup
+sudo usermod -aG sudo setup
+#Change to user
+su - setup
+
+#Script to get xrdp working
+wget https://www.c-nergy.be/downloads/xRDP/xrdp-installer-1.5.4.zip
+unzip xrdp-installer-1.5.4.zip 
+chmod +x xrdp-installer-1.5.4.sh
+./xrdp-installer-1.5.4.sh
+#Cleanup
+rm xrdp-installer-1.5.4.sh
+rm xrdp-installer-1.5.4.zip
+
+For steam support and chromium
+sudo apt install bubblewrap chromium
+sudo chown root:root /usr/bin/bwrap
+sudo chmod 4755 /usr/bin/bwrap
+#Testing
+ls -l /usr/bin/bwrap
+#should output "-rwsr-xr-x 1 root root ..."
+
+#For sunshine the most recent working version is
+wget https://github.com/LizardByte/Sunshine/releases/download/v0.23.1/sunshine-debian-bookworm-amd64.deb
