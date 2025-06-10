@@ -1,3 +1,5 @@
+In proxmox webui you must go to "options" then "features" and enable "nesting"
+
 apt update
 apt upgrade
 
