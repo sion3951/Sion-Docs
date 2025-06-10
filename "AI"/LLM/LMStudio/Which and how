@@ -1,0 +1,53 @@
+#Please read LLMOverview if you have dont understand terms or wish to know more
+#If you wish for any LLMs to be added to avaliable pool please request (settings for 24GB VRAM, eg 3090, 3090ti, 4090)
+
+This is a list of avaliable LLMs on my hosted Proxmox instance and the allowed settings.
+There are "red", "Yellow" and "Green" models, this refers to hosting cost (ie VRAM usage)
+"Red" LLMs use all/most of the 24GB of VRAM avaliable so please limit useage where possible but will normally provide the best answers
+"Yellow" LLMs will use about half so two users can use them simultaneously
+"Green" LLMs are low VRAM usage so the cost/impact on others is minimal
+"Black" LLMs that are listed but wont run, dont try them, they are expensive to run
+Lists are in rough order of quality
+
+Settings - 
+Flash attentnion can improve performance, can be unstable, try it?
+Context window depends on the model, 4k is default, 8k is enough for most things, models are worse at larger context windows so try to keep your chats short
+
+Name Format - 
+Using "R Qwen 3 30B A3B Q4 XL (unsloth)" as example
+"R" if it is a reasoning model (thinks before responding)
+"Qwen" Name
+"3" Version
+"30B" Parameters (more usually higher quality, slower, more expensive)
+"A3B" active parameters if relevant
+"Q4" precision
+"XL" quant quality
+"(unsloth)" labeled model provider (provider of disstillation)
+
+RED
+Context window must be kept bellow 16K!
+1. R Qwen 3 32B Q4 XL (unsloth) - highest quality model that will run, a lot slower than Qwen 3 30B A3B and only a little bit better
+1. R Qwen 3 30B A3B Q4 XL (unsloth) - very good very fast, best avaliable model
+2. Gemma 3 27B Q4 XL (unsloth) - higher quality version of Gemma 3 27B at same cost
+3. Gemma 3 27B Q4 (google) - vision enabled
+NA. MedGemma 27B Q4 XL (unsloth) - medical specialised version of Gemma 3 27B
+
+
+Orange
+context window can be upto 32K
+1.R Qwen 3 14B Q4 XL (unsloth)
+1.R Qwen 3 8B Q4 XL (unsloth)
+2.Gemma 3 12b Q4 XL (unsloth)
+3.Llama 3.1 8B Q4 XL (unsloth)
+
+
+Green
+Context window can be upto 128K
+1.R Qwen 3 4B Q4 XL (unsloth)
+2.Gemma 3 4B Q4 XL (unsloth)
+NA.MedGemma 4B Q4 XL (unsloth) - cheap version of MedGemma 27B Q4 XL
+
+NA.Qwen 3 0.6B Q8 XL (unsloth) - cheapest model avaliable, very fast
+
+Black
+Dont use these, they probably wont load
