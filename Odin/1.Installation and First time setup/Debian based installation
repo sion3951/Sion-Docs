@@ -1,0 +1,10 @@
+Go to - https://github.com/odin-lang/Odin/releases
+Download the most recent linux release
+To open use "unzip"
+Then use "tar -xf" on the dist file
+Now you need to add to path
+Run "nano ~/.bashrc"
+Add "export PATH="$<file path>:$PATH" to the bottom
+CTRL + O, ENTER, CTRL + X
+"source ~/.bashrc" to reload terminal
+Now "odin run ." will build code
