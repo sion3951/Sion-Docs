@@ -1,0 +1,5 @@
+Most LLMs (Large Language Models) are auto regressive next token predictors, but what does that mean?
+
+When training an LLM you take a huge data set of text on the scale of the whole internet, break it down into "Tokens" and then train a neural network so that when you give it a piece of text, it will continue it.
+A token is a unit of information, a very basic implementation is to have each letter be a token, where the word "beans" would be 5 tokens.
+This does not work very well, it has been found that the more characters that you have per token the better it performs, so for example with Qwen 3 "beans" is actually one token.
