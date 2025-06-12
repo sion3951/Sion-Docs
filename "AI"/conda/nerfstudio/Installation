@@ -1,0 +1,32 @@
+#Refined from https://docs.nerf.studio/quickstart/installation.html
+#Tested - Arch, Debian
+#conda activate nerfstudio #used for enableing
+
+conda create --name nerfstudio -y python=3.8
+conda activate nerfstudio
+python -m pip install --upgrade pip
+
+#Not normally needed
+pip uninstall torch torchvision functorch tinycudann
+
+pip install torch torchvision
+
+#Latest at time of writing, check
+conda install -c "nvidia/label/cuda-12.9.0" cuda-toolkit
+
+#Most common fail point
+pip install ninja git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch
+
+#For latest
+git clone https://github.com/nerfstudio-project/nerfstudio.git
+cd nerfstudio
+pip install --upgrade pip setuptools
+pip install -e .
+
+#For from images/video (from video not reccomended)
+conda install -c conda-forge colmap
+
+#For Autofill
+ns-install-cli
+conda deactivate
+conda activate nerfstudio
