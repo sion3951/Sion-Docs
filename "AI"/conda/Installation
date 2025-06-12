@@ -1,0 +1,10 @@
+wget <conda file>
+sh <conda file>
+ENTER
+Q
+YES
+ENTER
+YES
+ENTER
+rm <conda file>
+source ./.bashrc
