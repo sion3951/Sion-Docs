@@ -75,6 +75,7 @@ sudo cp /var/cuda-repo-debian12-13-0-local/cuda-*-keyring.gpg /usr/share/keyring
 sudo apt-get update
 sudo apt upgrade
 sudo apt-get -y install nvidia-open cuda-toolkit-13-0
+rm cuda-repo-debian12-13-0-local_13.0.2-580.95.05-1_amd64.deb
 
 echo 'export PATH=/usr/local/cuda/bin:$PATH' >> ~/.bashrc
 echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
