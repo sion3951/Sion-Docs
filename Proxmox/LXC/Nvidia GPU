@@ -80,3 +80,13 @@ rm cuda-repo-debian12-13-0-local_13.0.2-580.95.05-1_amd64.deb
 echo 'export PATH=/usr/local/cuda/bin:$PATH' >> ~/.bashrc
 echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
 source ~/.bashrc
+
+
+IF HAVING ISSUES
+
+sudo apt remove --purge 'nvidia*' 'cuda*' -y
+sudo apt autoremove --purge -y
+sudo rm -rf /usr/local/cuda*
+sudo rm -f /etc/apt/sources.list.d/cuda*
+sudo rm -rf /var/cuda-repo-*
+sudo apt update
