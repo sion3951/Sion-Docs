@@ -6,7 +6,8 @@ apt upgrade -y
 apt install pve-headers-$(uname -r) build-essential make nvtop htop sudo gcc make cmake g++ git ffmpeg build-essential pkg-config xserver-xorg-dev xserver-xorg-core xserver-xorg-dev pkg-config libglvnd-dev curl unzip -y
 update-initramfs -u
 
-sudo apt remove nvidia* cuda* -y
+sudo apt purge 'nvidia-*' 'cuda-*' 'libnvidia-*' -y
+sudo apt autoremove --purge -y
 
 #update 3 lines bellow this to latest cuda https://developer.nvidia.com/cuda-toolkit
 wget https://developer.download.nvidia.com/compute/cuda/13.0.2/local_installers/cuda-repo-debian12-13-0-local_13.0.2-580.95.05-1_amd64.deb
@@ -67,7 +68,8 @@ sudo apt install sudo gcc make cmake g++ git ffmpeg build-essential pkg-config x
 MAKE SURE SAME AS ABOVE
 ########
 
-sudo apt remove nvidia* cuda* -y
+sudo apt purge 'nvidia-*' 'cuda-*' 'libnvidia-*' -y
+sudo apt autoremove --purge -y
 
 wget https://developer.download.nvidia.com/compute/cuda/13.0.2/local_installers/cuda-repo-debian12-13-0-local_13.0.2-580.95.05-1_amd64.deb
 sudo dpkg -i cuda-repo-debian12-13-0-local_13.0.2-580.95.05-1_amd64.deb
