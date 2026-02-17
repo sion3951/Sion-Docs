@@ -1,94 +1,130 @@
-In proxmox webui you must go to "options" then "features" and enable "nesting"
+1. Enable Nesting (Proxmox Web UI)
+
+Required for GPU + TUN access.
+
+CT → Options → Features → Enable "Nesting"
+
+2. LXC Container: Base System Setup
+
+Run inside the container.
 
 apt update
 apt upgrade -y
 
-apt install pve-headers-$(uname -r) build-essential make nvtop htop sudo gcc make cmake g++ git ffmpeg build-essential pkg-config xserver-xorg-dev xserver-xorg-core xserver-xorg-dev pkg-config libglvnd-dev curl unzip -y
+apt install -y \
+  pve-headers-$(uname -r) \
+  build-essential make gcc g++ cmake git \
+  pkg-config curl unzip sudo \
+  ffmpeg nvtop htop \
+  xserver-xorg-dev xserver-xorg-core \
+  libglvnd-dev
+
 update-initramfs -u
 
-sudo apt purge 'nvidia-*' 'cuda-*' 'libnvidia-*' -y
+3. Clean Previous NVIDIA / CUDA (Recommended)
+
+Run inside the container.
+
+sudo apt purge -y 'nvidia-*' 'cuda-*' 'libnvidia-*'
 sudo apt autoremove --purge -y
 
-#update 3 lines bellow this to latest cuda https://developer.nvidia.com/cuda-toolkit
+4. Install CUDA + NVIDIA Driver (Debian 12 Example — Update Version If Needed)
+
+Check latest version:
+https://developer.nvidia.com/cuda-toolkit
+
+Run inside the container:
+
 wget https://developer.download.nvidia.com/compute/cuda/13.0.2/local_installers/cuda-repo-debian12-13-0-local_13.0.2-580.95.05-1_amd64.deb
+
 sudo dpkg -i cuda-repo-debian12-13-0-local_13.0.2-580.95.05-1_amd64.deb
 sudo cp /var/cuda-repo-debian12-13-0-local/cuda-*-keyring.gpg /usr/share/keyrings/
-#update 3 lines above this to latest cuda https://developer.nvidia.com/cuda-toolkit
 
-sudo apt-get update
-sudo apt upgrade
-sudo apt-get -y install nvidia-open cuda-toolkit-13-0
+sudo apt update
+sudo apt upgrade -y
+sudo apt install -y nvidia-open cuda-toolkit-13-0
 
+Add CUDA to PATH
 echo 'export PATH=/usr/local/cuda/bin:$PATH' >> ~/.bashrc
 echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
 source ~/.bashrc
 
- From  - ls -al /dev/nvidia*
+5. Verify GPU Device Nodes (Host)
 
-We need
+Run on Proxmox host:
 
-crw-rw-rw- 1 root root 195,   0 Jun  9 07:33 /dev/nvidia0
-crw-rw-rw- 1 root root 195, 255 Jun  9 07:33 /dev/nvidiactl
-crw-rw-rw- 1 root root 505,   0 Jun  9 07:33 /dev/nvidia-uvm
-crw-rw-rw- 1 root root 505,   1 Jun  9 07:33 /dev/nvidia-uvm-tools
+ls -al /dev/nvidia*
 
-/dev/nvidia-caps:
-total 0
-drwxr-xr-x  2 root root     80 Jun  9 07:33 .
-drwxr-xr-x 21 root root   4940 Jun  9 07:33 ..
-cr--------  1 root root 508, 1 Jun  9 07:33 nvidia-cap1
-cr--r--r--  1 root root 508, 2 Jun  9 07:33 nvidia-cap2
 
-195,505,508
+You should see:
 
-So (tailscale inc)
+/dev/nvidia0
+/dev/nvidiactl
+/dev/nvidia-uvm
+/dev/nvidia-uvm-tools
+/dev/nvidia-caps/*
 
+
+Important device majors:
+
+195 → nvidia
+505 → uvm
+508 → caps
+
+6. Enable GPU + Tailscale Access in LXC Config (Host)
+
+Edit container config:
+
+/etc/pve/lxc/<CTID>.conf
+
+
+Add:
+
+# NVIDIA
 lxc.cgroup2.devices.allow: c 195:* rwm
 lxc.cgroup2.devices.allow: c 505:* rwm
 lxc.cgroup2.devices.allow: c 508:* rwm
+
 lxc.mount.entry: /dev/nvidia0 dev/nvidia0 none bind,optional,create=file
 lxc.mount.entry: /dev/nvidiactl dev/nvidiactl none bind,optional,create=file
 lxc.mount.entry: /dev/nvidia-modeset dev/nvidia-modeset none bind,optional,create=file
+
+# Tailscale / tun
 lxc.cgroup2.devices.allow: c 10:200 rwm
 lxc.mount.entry: /dev/net/tun dev/net/tun none bind,create=file
 
-Add to /etc/pve/lxc/<ctid>.conf
 
-pct push <ctid> Nvidia.run /Nvidia.run
+Restart container after.
 
+7. Optional: Push NVIDIA Run Installer to Container (Host)
 
+If using .run installer:
+
+pct push <CTID> Nvidia.run /Nvidia.run
+
+8. Optional: 32-bit Support + Additional Packages
 dpkg --add-architecture i386
-sudo apt update && upgrade
-sudo apt install sudo gcc make cmake g++ git ffmpeg build-essential pkg-config xserver-xorg-dev xserver-xorg-core xserver-xorg-dev pkg-config libglvnd-dev curl unzip -y
+sudo apt update
+sudo apt upgrade -y
 
+sudo apt install -y \
+  build-essential gcc g++ make cmake git \
+  pkg-config curl unzip sudo ffmpeg \
+  xserver-xorg-dev xserver-xorg-core \
+  libglvnd-dev
 
-#install display driver
+9. Full Driver Reinstall (If Things Break)
 
-########
-MAKE SURE SAME AS ABOVE
-########
+Use this if CUDA/NVIDIA gets messy.
 
-sudo apt purge 'nvidia-*' 'cuda-*' 'libnvidia-*' -y
+sudo apt remove --purge -y 'nvidia*' 'cuda*'
 sudo apt autoremove --purge -y
 
-wget https://developer.download.nvidia.com/compute/cuda/13.0.2/local_installers/cuda-repo-debian12-13-0-local_13.0.2-580.95.05-1_amd64.deb
-sudo dpkg -i cuda-repo-debian12-13-0-local_13.0.2-580.95.05-1_amd64.deb
-sudo cp /var/cuda-repo-debian12-13-0-local/cuda-*-keyring.gpg /usr/share/keyrings/
-sudo apt-get update
-sudo apt upgrade
-sudo apt-get -y install nvidia-open cuda-toolkit-13-0
-rm cuda-repo-debian12-13-0-local_13.0.2-580.95.05-1_amd64.deb
-
-echo 'export PATH=/usr/local/cuda/bin:$PATH' >> ~/.bashrc
-echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
-source ~/.bashrc
-
-
-IF HAVING ISSUES
-
-sudo apt remove --purge 'nvidia*' 'cuda*' -y
-sudo apt autoremove --purge -y
 sudo rm -rf /usr/local/cuda*
 sudo rm -f /etc/apt/sources.list.d/cuda*
 sudo rm -rf /var/cuda-repo-*
+
 sudo apt update
+
+
+Then repeat Section 4.
