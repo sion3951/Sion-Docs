@@ -1,0 +1,41 @@
+Host script
+nvidia-proxmox-host.sh host-install — installs/updates the host NVIDIA stack and saves the detected host driver version to /etc/nvidia-host-version; run this first on the Proxmox host.
+
+nvidia-proxmox-host.sh detect — shows detected /dev/nvidia* devices and the passthrough block it would generate; use it to sanity-check the host before applying CT config.
+
+nvidia-proxmox-host.sh ct-apply <ctid...> — adds or refreshes the NVIDIA passthrough block in one or more CT configs under /etc/pve/lxc/.
+
+nvidia-proxmox-host.sh push-version <ctid...> — copies /etc/nvidia-host-version into one or more containers.
+
+nvidia-proxmox-host.sh push-ct-script <ctid...> — copies /root/nvidia-proxmox-ct.sh into one or more containers and makes it executable.
+
+CT script
+/root/nvidia-proxmox-ct.sh install — cleans old NVIDIA/CUDA state, adds the correct NVIDIA repo for Debian 11/12/13, and installs CT userspace packages matching the host driver version; use this for both new containers and updating old ones.
+
+/root/nvidia-proxmox-ct.sh cleanup — removes old NVIDIA/CUDA packages and repo config; usually not needed before install because install already runs cleanup internally.
+
+/root/nvidia-proxmox-ct.sh verify — runs nvidia-smi and nvcc --version inside the container to confirm the setup.
+
+Example usage:
+Update existing setup
+On the host:
+
+bash /root/nvidia-proxmox-host.sh host-install
+bash /root/nvidia-proxmox-host.sh ct-apply 101 102
+bash /root/nvidia-proxmox-host.sh push-version 101 102
+bash /root/nvidia-proxmox-host.sh push-ct-script 101 102
+
+Then for each CT:
+
+pct exec 101 -- bash /root/nvidia-proxmox-ct.sh install
+pct exec 102 -- bash /root/nvidia-proxmox-ct.sh install
+
+Install on new containers
+For a new container, use the same flow after the CT exists:
+
+bash /root/nvidia-proxmox-host.sh ct-apply 105
+bash /root/nvidia-proxmox-host.sh push-version 105
+bash /root/nvidia-proxmox-host.sh push-ct-script 105
+pct exec 105 -- bash /root/nvidia-proxmox-ct.sh install
+pct exec 105 -- bash /root/nvidia-proxmox-ct.sh verify
+
